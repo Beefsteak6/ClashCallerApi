@@ -3,7 +3,7 @@
     public class Attack
     {
         public string Name { get; set; }
-        public int Stars { get; set; }
-        public int Rank { get; set; }
+        public string Stars { get; set; }
+        public string Rank { get; set; }
     }
 }

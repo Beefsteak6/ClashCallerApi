@@ -31,8 +31,9 @@ namespace ClashCaller.Helpers
                 {
                     var attack = new Attack();
                     attack.Name = match.Groups["name"].Value;
-                    attack.Stars = int.Parse(match.Groups["stars"].Value);
-                    attack.Rank = int.Parse(match.Groups["rank"].Value) + 1; //0 based index so adding one
+                    attack.Stars = match.Groups["stars"].Value;
+                    int rank = int.Parse(match.Groups["rank"].Value) + 1; //0 based index so adding one
+                    attack.Rank = rank.ToString(CultureInfo.InvariantCulture);
 
                     result.Attacks.Add(attack);
                 }
