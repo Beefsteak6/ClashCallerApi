@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using ClashCaller.Models;
@@ -37,27 +38,47 @@ namespace ClashCaller.Helpers
                 }
             }
 
+            result.TotalRanks = GetTotalRanks(dom);
+
             return result;
+        }
+
+        private static int GetTotalRanks(CQ dom)
+        {
+            var selector = dom[".calltable>tbody>tr:last-child"].Find("img");
+            var item = selector.FirstElement().GetAttribute("onclick").Trim();
+
+            const string matchString = @"^requesttext\('(?<rank>\d*)'\)";
+            var regex = new Regex(matchString, RegexOptions.None);
+            var match = regex.Match(item);
+
+            if (match.Success)
+            {
+                int result;
+                int.TryParse(match.Groups["rank"].Value, out result);
+                return result + 1;
+            }
+
+            return 0;
         }
 
         public static bool SetCalledTarget(string id, string playerName, int rank, int positionInLine)
         {
             const string serverAddress = "http://clashcaller.com/";
 
-            using (var client = new HttpClient() { BaseAddress = new Uri(serverAddress) })
+            using (var client = new HttpClient { BaseAddress = new Uri(serverAddress) })
             {
                 var content = new FormUrlEncodedContent(new[] 
                 {
                     new KeyValuePair<string, string>("type", "A"),
                     new KeyValuePair<string, string>("playername", playerName), 
                     new KeyValuePair<string, string>("stars", "-1"), 
-                    new KeyValuePair<string, string>("posx", positionInLine.ToString()), 
-                    new KeyValuePair<string, string>("posy", rank.ToString()), 
+                    new KeyValuePair<string, string>("posx", positionInLine.ToString(CultureInfo.InvariantCulture)), 
+                    new KeyValuePair<string, string>("posy", rank.ToString(CultureInfo.InvariantCulture)), 
                     new KeyValuePair<string, string>("id", id)
                 });
 
                 client.DefaultRequestHeaders.Referrer = new Uri(new Uri(serverAddress), "war.php?id=" + id);
-
                 var result = client.PostAsync("update.php", content).Result;
 
                 return result.IsSuccessStatusCode;

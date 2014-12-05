@@ -8,5 +8,7 @@ namespace ClashCaller.Models
         public string ClanOpponent { get; set; }
 
         public IList<Attack> Attacks { get; set; }
+
+        public int TotalRanks { get; set; }
     }
 }
